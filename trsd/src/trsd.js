@@ -39,7 +39,7 @@ function createLights() {
   scene.add(ambient);
 }
 
-function createObjects() {
+function createObjectsFull() {
   var mtlLoader = new THREE.MTLLoader();
   mtlLoader.setBaseUrl('assets/');
   mtlLoader.setPath('assets/');
@@ -55,6 +55,17 @@ function createObjects() {
     });
   });
 }
+
+function createObjects() {
+
+  var objLoader = new THREE.OBJLoader();
+  //objLoader.setMaterials(materials);
+  objLoader.setPath('assets/');
+  objLoader.load('female-croupier-2013-03-26.obj', function (object) {
+                    scene.add(object);
+  });
+}
+
 
 function createRender() {
   renderer = new THREE.WebGLRenderer();
