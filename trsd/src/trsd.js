@@ -61,9 +61,11 @@ function createObjects() {
   var objLoader = new THREE.OBJLoader();
   //objLoader.setMaterials(materials);
   objLoader.setPath('assets/');
-  objLoader.load('female-croupier-2013-03-26.obj', function (object) {
+  obj = objLoader.load('female-croupier-2013-03-26.obj', function (object) {
                     scene.add(object);
   });
+  var material = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
+  obj.material = material;
 }
 
 
