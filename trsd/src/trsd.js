@@ -6,9 +6,12 @@ var container;
 
 var camera, controls, scene, renderer;
 var ambient;
+var arteries = "valor inicial";
 
 var windowHalfX = window.innerWidth / 2;
 var windowHalfY = window.innerHeight / 2;
+
+var gui = new dat.GUI();
 
 init();
 animate();
@@ -26,6 +29,7 @@ function init() {
   createObjects();
   createRender();
   createControls();
+  createDatGui();
 
 }
 
@@ -37,35 +41,51 @@ function createCameras() {
 function createLights() {
   ambient = new THREE.AmbientLight(0xffffff, 1.0);
   scene.add(ambient);
+
+  var light = new THREE.DirectionalLight( 0xffffff, 1 );
+  //light.position.set( 0, 1, 0 );
+  scene.add( light );
+
 }
 
-function createObjectsFull() {
-  var mtlLoader = new THREE.MTLLoader();
-  mtlLoader.setBaseUrl('assets/');
-  mtlLoader.setPath('assets/');
-  mtlLoader.load('female-croupier-2013-03-26.mtl', function (materials) {
-    materials.preload();
-    materials.materials.default.map.magFilter = THREE.NearestFilter;
-    materials.materials.default.map.minFilter = THREE.LinearFilter;
-    var objLoader = new THREE.OBJLoader();
-    objLoader.setMaterials(materials);
-    objLoader.setPath('assets/');
-    objLoader.load('female-croupier-2013-03-26.obj', function (object) {
-                    scene.add(object);
-    });
-  });
-}
 
 function createObjects() {
-
   var objLoader = new THREE.OBJLoader();
-  //objLoader.setMaterials(materials);
-  objLoader.setPath('assets/');
-  obj = objLoader.load('female-croupier-2013-03-26.obj', function (object) {
-                    scene.add(object);
+  var texture = new THREE.TextureLoader().load('assets/textures/veins.jpg');
+  var color = new THREE.Color('#ff0000');
+  //texture.wrapS = THREE.RepeatWrapping;
+  //texture.wrapT = THREE.RepetaWrapping;
+  //texture.repeat.set(4,4);
+
+  var material = new THREE.MeshPhongMaterial({//color: color.getHex(),
+                                              specular: 0x999999,
+                                              shininess: 10,
+                                              map: texture
+                                            });
+
+
+  var name = 'arteries'
+  objLoader.setPath('assets/models/');
+  objLoader.load(name.concat('.obj'), function (object) {
+    object.name = name;
+    object.traverse(function (child) {
+
+      if (child instanceof THREE.Mesh) {
+        child.material = material;
+      }
+    });
+    scene.add(object);
+    arteries = object;
+
+    var objectGui = gui.addFolder("object position");
+    objectGui.add(arteries, 'name');
+    objectGui.add(arteries.position, 'x');
+    objectGui.add(arteries.position, 'y');
+    objectGui.add(arteries.position, 'z');
+    objectGui.open();
+
   });
-  //var material = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
-  //obj.material = material;
+
 }
 
 
@@ -85,11 +105,18 @@ function createControls() {
   controls.enableZoom = false;
 }
 
+function createDatGui() {
+  var cameraGui = gui.addFolder("camera position");
+  cameraGui.add(camera.position, 'x');
+  cameraGui.add(camera.position, 'y');
+  cameraGui.add(camera.position, 'z');
+  cameraGui.open();
+}
+
 function animate() {
   requestAnimationFrame(animate);
 
   controls.update();
-
   render();
 }
 
