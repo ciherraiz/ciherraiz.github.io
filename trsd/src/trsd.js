@@ -1,3 +1,11 @@
+/*TODO
+hash table for textures and objects name
+update when the window changes the dimensions
+isolate in a funcion the code witch create a object
+loading progress bar...
+https://github.com/mrdoob/three.js/blob/master/examples/webgl_loader_nrrd.html
+*/
+
 if (!Detector.webgl) {
     Detector.addGetWebGLMessage();
 }
@@ -6,12 +14,16 @@ var container;
 
 var camera, controls, scene, renderer;
 var ambient;
-var arteries = "valor inicial";
+var arteries;
 
 var windowHalfX = window.innerWidth / 2;
 var windowHalfY = window.innerHeight / 2;
 
+var axis;
+
 var gui = new dat.GUI();
+
+var stats;
 
 init();
 animate();
@@ -20,6 +32,8 @@ function init() {
 
   container = document.createElement('div');
   document.body.appendChild(container);
+  stats = new Stats();
+	container.appendChild( stats.dom );
 
   //create the scene
   scene = new THREE.Scene();
@@ -31,11 +45,15 @@ function init() {
   createControls();
   createDatGui();
 
+  axis = new THREE.AxisHelper(50);
+  scene.add(axis);
+  console.log(axis.position)
+
 }
 
 function createCameras() {
-  camera = new THREE.PerspectiveCamera(45,window.innerWidth / window.innerHeight, 1, 1000);
-  camera.position.z = 3;
+  camera = new THREE.PerspectiveCamera(45,window.innerWidth / window.innerHeight, 1, 2000);
+  camera.position.z = 300;
 }
 
 function createLights() {
@@ -57,7 +75,7 @@ function createObjects() {
   //texture.wrapT = THREE.RepetaWrapping;
   //texture.repeat.set(4,4);
 
-  var material = new THREE.MeshPhongMaterial({//color: color.getHex(),
+  var material = new THREE.MeshPhongMaterial({color: color.getHex(),
                                               specular: 0x999999,
                                               shininess: 10,
                                               map: texture
@@ -72,10 +90,22 @@ function createObjects() {
 
       if (child instanceof THREE.Mesh) {
         child.material = material;
+        console.log(child.geometry.position);
       }
     });
+    //****************************************
+
+
+    //object.position.x = 30;
+    //object.position.y = 0;
+    //object.position.z = 770;
     scene.add(object);
     arteries = object;
+
+    bbHelper = new THREE.BoxHelper( object, 0xff0000 );
+    console.log(bbHelper.max);
+    //bbHelper.center();
+    scene.add( bbHelper )
 
     var objectGui = gui.addFolder("object position");
     objectGui.add(arteries, 'name');
@@ -84,7 +114,12 @@ function createObjects() {
     objectGui.add(arteries.position, 'z');
     objectGui.open();
 
+    //object.geometry.center();
+    console.log(arteries.position);
+
   });
+
+
 
 }
 
@@ -117,6 +152,8 @@ function animate() {
   requestAnimationFrame(animate);
 
   controls.update();
+  stats.update();
+
   render();
 }
 
